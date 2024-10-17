@@ -35,6 +35,22 @@ const readline = require("readline");
       }
     });
     console.timeEnd("node");
+
+    // Close the file descriptors once reading is done
+    rl.on('close', async () => {
+        console.log('CSV cleaning completed.');
+        await srcFile.close();
+        await destFile.close();
+      });
+  
+    //   Handle errors
+      readStream.on('error', (err) => {
+        console.error('Error reading the file:', err);
+      });
+  
+      writeStream.on('error', (err) => {
+        console.error('Error writing the file:', err);
+      });
   } catch (error) {}
 })();
 
@@ -44,6 +60,14 @@ function isValidRow(line){
     // Check if required fields are present and valid
     if (!id || !name || !email || !age) return false;
 
-    console.log(id,name,age,email);
+    // Basic validation for email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return false;
+
+    // Age should be a number
+     if (isNaN(Number(age))) return false;
+
+     console.log(id,name,age,email);
+
     return true;
 }
